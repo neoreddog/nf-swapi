@@ -8,54 +8,55 @@ import {Heading, Text} from 'rebass/styled-components'
 
 
 const StarWars = () => {
-    const [characters, setCharacters] = useState({name: [], url: []});
+    const [characters, setCharacters] = useState([]);
     const [pages, setPages] = useState({next: '', prev: ''});
     const [loading, setLoading] = useState(true);
     const [metaLoading, setMetaLoading] = useState(false);
     const [hasError, setError] = useState({state: false, message: ''});
     //object has metadata like films and planets
     //consider how requests all update state
-    let currentCharID = 0
-    const [characterMetadata, setMetadata] = useState({charID: 0, films:  [], starships: [], vehicles: []});
-    const characterShape = ({ name, films, ...rest }) => ({ name });
+    const [characterMetadata, setMetadata] = useState({charID: 0, films:  [], starships: [], vehicles: [] });
 
     const fetchCharacters = async () => {
         try {
+
             const result = await (await fetch('https://swapi.co/api/people/?page=1')).json();
             const results = result.results
             const shapeNext = ({next,...rest}) => ({next});
             const shapePrev = ({previous,...rest}) => ({previous});
-            const shapeName = ({name,...rest}) => ({name});
+            const shapeCharacter = ({name,url,...rest}) => ({name,url});
             const shapeUrl = ({url,...rest}) => ({url});
 
-            const shapedCharacters = {
-                name: results ? results.map(shapeName) : [],
-                url: results ? results.map(shapeUrl) : [],
-            };
-            console.log(shapedCharacters)
-            const character = shapedCharacters.name.map(({name,...rest}) => ({name}))
-            console.log(character)
+            const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : []
+
             const shapedPages = {
                 next: result && shapeNext(result),
                 prev: result && shapePrev(result),
             };
-            console.log(shapedCharacters)
-            setCharacters((characters) => ({...characters, shapedCharacters}))
-            setPages((pages) => ({...pages, shapedPages}))
-            console.log(characters.name)
-            console.log(characters.url)
+
+            console.log('setting');
+            setCharacters(shapedCharacters);
+            setPages(shapedPages);
 
         } catch(e) {
             setError({state: true, message: e.message})
         }
+
         setLoading(false)
+
     }
 
-    const fetchCharacterMetadata = async (charID) => {
+    const fetchCharacterMetadata = async () => {
         //Fetch character data
-        console.log('loading meta')
-        setMetaLoading(true)
-        const result = await (await fetch(characters.url[charID])).json();
+        console.log('loading meta');
+        let charID = characterMetadata.charID;
+        console.log(characters,characters.length,charID)
+        if (!characters || characters.length <= 0 || charID === undefined) {
+            return
+        }
+        setMetaLoading(true);
+        console.log(characters[charID].url);
+        const result = await (await fetch(characters[charID].url)).json();
 
         const fetchMetaPromises = async (meta) => {
             if (meta.length > 0) {
@@ -82,17 +83,18 @@ const StarWars = () => {
                 starships: starshipPromises && starshipPromises.length > 0 ? starshipPromises.map(result => shapeStarships(result)) : [],
                 vehicles: vehiclePromises && vehiclePromises.length > 0 ? vehiclePromises.map(result => shapeVehicles(result)) : []
             };
+            console.log(data)
             setMetadata((characterMetadata) => ({...characterMetadata,...data }))
         }
         setMetaLoading(false)
     };
-
-
-    useEffect( () => {
+    useEffect(() => {
         fetchCharacters();
-        fetchCharacterMetadata(characterMetadata.charID)
+    },[])
+    useEffect( () => {
+        fetchCharacterMetadata()
+    },[characterMetadata.charID,characters]);
 
-    },[characterMetadata.charID]);
 
 
     return (
@@ -107,12 +109,12 @@ const StarWars = () => {
                         <Box width={1/2} p={0} m={2}>
                             <Heading textAlign={'left'} fontSize={4}>Characters</Heading>
                             <MetadataBox>
-                                {characters.name.map((character,index) =>
+                                {characters.map((character,index) =>
                                     <MetadataBox key={index}
                                                  bg={characterMetadata.charID === index ? 'primary': 'contentAreaBackground'}
                                                  onClick={() => {
                                                      setMetadata({charID: index})}}>
-                                        {character}
+                                        {character.name}
                                     </MetadataBox>)}
                             </MetadataBox>
                         </Box>
