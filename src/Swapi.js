@@ -20,7 +20,7 @@ const StarWars = () => {
     const fetchCharacters = async () => {
         try {
 
-            const result = await (await fetch('https://swapi.co/api/people/?page=1')).json();
+            const result = await (await fetch('https://swapi.dev/api/people/?page=1')).json();
             const results = result.results
             const shapeNext = ({next,...rest}) => ({next});
             const shapePrev = ({previous,...rest}) => ({previous});
