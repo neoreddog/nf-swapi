@@ -25,12 +25,8 @@ const StarWars = () => {
             //Gets url for next and previous pages
             const shapeNext = ({next,...rest}) => ({next});
             const shapePrev = ({previous,...rest}) => ({previous});
-            //Shaped character contains name and url
-            const shapeCharacter = ({name,url,...rest}) => ({name,url});
-            const shapeUrl = ({url,...rest}) => ({url});
-            //force url to be https
-            shapeCharacter.url = [shapeCharacter.url.splice(0,4), 's', shapeCharacter.url.splice(4)].join('');
-            console.log(shapeCharacter.url);
+            //Shaped character contains name and url, makes url https
+            const shapeCharacter = ({name,url,...rest}) => ({name,url: url.replace('http://', 'https://')});
             const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : [];
 
             const shapedPages = {
