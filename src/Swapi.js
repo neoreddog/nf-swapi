@@ -21,13 +21,17 @@ const StarWars = () => {
         try {
 
             const result = await (await fetch('https://swapi.dev/api/people/?page=1')).json();
-            const results = result.results
+            const results = result.results;
+            //Gets url for next and previous pages
             const shapeNext = ({next,...rest}) => ({next});
             const shapePrev = ({previous,...rest}) => ({previous});
+            //Shaped character contains name and url
             const shapeCharacter = ({name,url,...rest}) => ({name,url});
             const shapeUrl = ({url,...rest}) => ({url});
-
-            const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : []
+            //force url to be https
+            shapeCharacter.url = [shapeCharacter.url.splice(0,4), 's', shapeCharacter.url.splice(4)].join('');
+            console.log(shapeCharacter.url);
+            const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : [];
 
             const shapedPages = {
                 next: result && shapeNext(result),
