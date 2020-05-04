@@ -17,6 +17,8 @@ const StarWars = () => {
     //consider how requests all update state
     const [characterMetadata, setMetadata] = useState({charID: 0, films:  [], starships: [], vehicles: [] });
 
+    const makeHttps = ({url, ...rest}) => ({url: url.replace('http://', 'https://'), ...rest});
+
     const fetchCharacters = async () => {
         try {
 
@@ -26,7 +28,7 @@ const StarWars = () => {
             const shapeNext = ({next,...rest}) => ({next});
             const shapePrev = ({previous,...rest}) => ({previous});
             //Shaped character contains name and url, makes url https
-            const shapeCharacter = ({name,url,...rest}) => ({name,url: url.replace('http://', 'https://')});
+            const shapeCharacter = ({name,url,...rest}) => ({name,url: makeHttps(url)});
             const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : [];
 
             const shapedPages = {
@@ -72,9 +74,11 @@ const StarWars = () => {
         const shapeStarships = ({name, ...rest}) => ({name});
         const shapeVehicles = ({name, ...rest}) => ({name});
 
-        const filmPromises = await fetchMetaPromises(result.films);
-        const starshipPromises = await fetchMetaPromises(result.starships);
-        const vehiclePromises = await fetchMetaPromises(result.vehicles);
+
+
+        const filmPromises = await fetchMetaPromises(result.films.map(makeHttps));
+        const starshipPromises = await fetchMetaPromises(result.starships.map(makeHttps));
+        const vehiclePromises = await fetchMetaPromises(result.vehicles.map(makeHttps));
 
         if (charID === characterMetadata.charID) {
             console.log('im setting');
