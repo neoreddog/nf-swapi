@@ -1,18 +1,14 @@
-FROM tiangolo/node-frontend:10 as build-stage
-
+# build environment
+FROM node:13.12.0-alpine as build
 WORKDIR /app
-# install app dependencies
-COPY package*.json .
-RUN npm install
-
-COPY ./ /app/
-
-RUN npm run build
-
-# add app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY package.json ./
+RUN yarn add global react-scripts@3.4.1
+RUN yarn install --silent
 COPY . ./
-
-FROM nginx:1.15
-COPY --from=build-stage /app/build/ /usr/share/nginx/html
-# Copy the default nginx.conf provided by tiangolo/node-frontend
-COPY --from=build-stage /nginx.conf /etc/nginx/conf.d/default.conf
+RUN yarn run build
+# production environment
+FROM nginx:stable-alpine
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
