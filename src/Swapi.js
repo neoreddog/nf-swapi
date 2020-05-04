@@ -17,18 +17,18 @@ const StarWars = () => {
     //consider how requests all update state
     const [characterMetadata, setMetadata] = useState({charID: 0, films:  [], starships: [], vehicles: [] });
 
-    const makeHttps = ({url, ...rest}) => ({url: url.replace('http://', 'https://'), ...rest});
+    const makeHttps = (url) => (url.replace('http://', 'https://'));
 
     const fetchCharacters = async () => {
         try {
-
             const result = await (await fetch('https://swapi.dev/api/people/?page=1')).json();
             const results = result.results;
             //Gets url for next and previous pages
-            const shapeNext = ({next,...rest}) => ({next});
-            const shapePrev = ({previous,...rest}) => ({previous});
+            const shapeNext = ({next}) => ({next});
+            const shapePrev = ({previous}) => ({previous});
             //Shaped character contains name and url, makes url https
-            const shapeCharacter = ({name,url,...rest}) => ({name,url: makeHttps(url)});
+
+            const shapeCharacter = ({name,url}) => ({name,url: makeHttps(url)});
             const shapedCharacters  = results && results.length > 0 ? results.map(shapeCharacter) : [];
 
             const shapedPages = {
@@ -36,7 +36,6 @@ const StarWars = () => {
                 prev: result && shapePrev(result),
             };
 
-            console.log('setting');
             setCharacters(shapedCharacters);
             setPages(shapedPages);
 
@@ -50,14 +49,11 @@ const StarWars = () => {
 
     const fetchCharacterMetadata = async () => {
         //Fetch character data
-        console.log('loading meta');
         let charID = characterMetadata.charID;
-        console.log(characters,characters.length,charID)
         if (!characters || characters.length <= 0 || charID === undefined) {
             return
         }
         setMetaLoading(true);
-        console.log(characters[charID].url);
         const result = await (await fetch(characters[charID].url)).json();
 
         const fetchMetaPromises = async (meta) => {
@@ -70,9 +66,9 @@ const StarWars = () => {
 
 
         //Shaping functions
-        const shapeFilms = ({title, episode_id, ...rest}) => ({title, episode_id});
-        const shapeStarships = ({name, ...rest}) => ({name});
-        const shapeVehicles = ({name, ...rest}) => ({name});
+        const shapeFilms = ({title, episode_id}) => ({title, episode_id});
+        const shapeStarships = ({name}) => ({name});
+        const shapeVehicles = ({name}) => ({name});
 
 
 
@@ -81,13 +77,11 @@ const StarWars = () => {
         const vehiclePromises = await fetchMetaPromises(result.vehicles.map(makeHttps));
 
         if (charID === characterMetadata.charID) {
-            console.log('im setting');
             const data = {
                 films: filmPromises && filmPromises.length > 0 ? filmPromises.map(result => shapeFilms(result)) : [],
                 starships: starshipPromises && starshipPromises.length > 0 ? starshipPromises.map(result => shapeStarships(result)) : [],
                 vehicles: vehiclePromises && vehiclePromises.length > 0 ? vehiclePromises.map(result => shapeVehicles(result)) : []
             };
-            console.log(data)
             setMetadata((characterMetadata) => ({...characterMetadata,...data }))
         }
         setMetaLoading(false)
