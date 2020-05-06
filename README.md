@@ -1,6 +1,6 @@
-# Northflank StarWars Character fetcher. 
+# Northflank StarWars Character fetcher
 
-A basic web app that uses the swapi.dev API to get information about Star Wars characters.
+A basic web app that uses the **`swapi.dev API`** to get information about Star Wars characters.
 
 Created as a demo app to showcase the Northflank platform
 
