@@ -2,9 +2,9 @@
 
 A basic web app that uses the swapi.dev API to get information about Star Wars characters.
 
-### Created as a demo app to showcase the Northflank platform
+Created as a demo app to showcase the Northflank platform
 
-### Usages
+## Usage 
 
 Clone this repository, navigate to project root. 
 
