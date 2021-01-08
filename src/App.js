@@ -16,9 +16,11 @@ class App extends Component {
   render() {
     return (
         <ThemeProvider theme={darkTheme}>
-            <Box className="App" bg={'#12161F'}>
+            <Box className="App" bg={'#12161F'} p={0}>
+              <Box>
                 <img src={logo} className="App-logo" alt="logo" p={4} />
                 <StarWars/>
+              </Box>
             </Box>
         </ThemeProvider>
 
